@@ -31,7 +31,7 @@ if (!cookiesArr[0]) {
     }
     console.log(ckMap)
     let date = new Date();
-    let today = new Date(`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}:00:00:000+8Z`)
+    let today = new Date(`${date.getFullYear()}-${(date.getMonth() + 1 + '').padStart(2, 0)}-${(date.getDate() + '').padStart(2, 0)}:00:00:000+8Z`)
 
     for (let i = 0; i < cookiesArr.length; ++i) {
         let ck = cookiesArr[i];
@@ -42,7 +42,7 @@ if (!cookiesArr[0]) {
         } else {
             ckMap[ck] = new Date(ckMap[ck])
         }
-        let day = 1 + (today.getTime() - ckMap[ck].getTime()) / 1000 / 60 / 60 / 24
+        let day = Math.round(1 + (today.getTime() - ckMap[ck].getTime()) / 1000 / 60 / 60 / 24)
         allMsg += `ck${$.index}：${$.UserName}  已录入${day}天\n`;
     }
     fs.writeFileSync(recordFile, JSON.stringify(ckMap))
