@@ -4,7 +4,7 @@
 '''
 早报
 早报地址：https://www.163.com/dy/media/T1603594732083.html
-cron 20 8 * * * news.py
+cron 20 8 * * * t_news.py
 '''
 
 import requests
