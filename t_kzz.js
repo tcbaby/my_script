@@ -1,6 +1,6 @@
 /*
 可转债
-cron 0 8 * * 1-5 t_kzz.js
+cron 30 8 * * 1-5 t_kzz.js
 */
 const request = require('request');
 const notify = require('./sendNotify');
