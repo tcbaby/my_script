@@ -17,8 +17,8 @@ const url = 'https://www.163.com/dy/media/T1603594732083.html'
             news_url = RegExp.$1
 
             request(news_url, async (err, res) => {
-                const reg = /<div class="post_body">[^<]*?<p class="f_center">.*?<p id=".*?">(.*?)<\/p>/g
-                let news = res.body.match(reg)[0].replace(reg, '$1').replace(/<br\/>/g, '\n')
+                res.body.match(/<div class="post_body">[^<]*?<p class="f_center">.*?<p id=".*?">.*?<br\/>(.*?)<\/p>/g)[0]
+                let news = RegExp.$1.replace(/<br\/>/g, '\n')
                 console.log(news)
                 await notify.sendNotify(`${name}`, news)
             })
