@@ -1,6 +1,6 @@
 /*
-可转债
 cron 30 8 * * 1-5 t_kzz.js
+new Env('可转债');
 */
 const request = require('request');
 const notify = require('./sendNotify');

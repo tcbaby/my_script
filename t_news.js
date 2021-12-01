@@ -1,6 +1,6 @@
 /*
-早报
 cron 20 8 * * * t_news.js
+new Env('早报');
 */
 
 const request = require('request');
