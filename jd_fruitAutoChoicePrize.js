@@ -1,8 +1,8 @@
 /*
-自动选择东东农场种子
-cron 30 6-18/6 * * * jd_fruitAutoChoicePrize.js
+东东农场选择种子
+cron 55 6-18/6 * * * jd_fruitAutoChoicePrize.js
 */
-const $ = new Env('自动选择东东农场种子');
+const $ = new Env('东东农场选择种子');
 let cookiesArr = [], cookie = '', notify, allMessage = '';
 
 let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false;
@@ -60,6 +60,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 async function initFarmStatus () {
   await initForFarm()
+  isFruitFinished = false, choicePrizeFlag = false
 
   console.log('\n初始化农场种植状态')
   const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
@@ -73,7 +74,7 @@ async function initFarmStatus () {
     } else {
       let cnt = (treeTotalEnergy - treeEnergy) / 10
       console.log(`水果尚未成熟，还需要浇水${cnt}次`)
-      message += `水果尚未成熟，还需要浇水${cnt}次`
+      // message += `水果尚未成熟，还需要浇水${cnt}次`
     }
   }
 }
@@ -95,7 +96,7 @@ async function initHongbao () {
       const { winTimes, treeEnergy, treeTotalEnergy } = $.farmHongBao.farmUserPro;
       console.log(`已成功兑换${winTimes}次`)
       console.log(`当前水滴数：${treeEnergy}, 需要水滴数：${treeTotalEnergy}`)
-      message += `${simpleName} ${name} 水果成熟\n领取红包${price}\n`
+      message += `${simpleName} ${name} 已成熟 领取红包${price}元\n`
     } else {
       console.log(`失败：${$.farmHongBao}`)
       message += '水果已经成熟，领取红包失败！'
@@ -124,8 +125,8 @@ async function choiceGoodsForFarm () {
         console.log(`奖品选择成功！`)
         console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
         console.log(`${simpleName} ${name}`)
-        message += `成功选择种子：${simpleName} ${name}`
-        message += `等级: ${prizeLevel}, 奖励红包：${price}元，需要水滴：${totalEnergy}g`
+        message += `选择种子：${simpleName} ${name} 【L${prizeLevel}】`
+        message += `奖励红包：${price}元，需要浇水：${totalEnergy}/次`
         await gotStageAwardForFarm()
       } else {
         console.log(`奖品选择失败：${choiceRes}`)
