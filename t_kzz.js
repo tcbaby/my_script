@@ -25,33 +25,31 @@ const url = 'https://data.eastmoney.com/kzz/default.html'
             for (const e of data) {
                 let currDate = new Date().getTime();
                 let date = new Date(e.VALUE_DATE.substring(0, 10) + ' 23:59:59+8').getTime();
-                let listingDate = e.LISTING_DATE ? new Date(e.LISTING_DATE.substring(0, 10)).getTime() : Number.MAX_SAFE_INTEGER
+                e.listingDate = e.LISTING_DATE ? new Date(e.LISTING_DATE.substring(0, 10)).getTime() : Number.MAX_SAFE_INTEGER
         
                 if (date >= currDate) {
                     latest.push(e)
                 }
-                if (Math.abs(currDate - listingDate) < 7 * 24 * 60 * 60 * 1000) {
+                if (Math.abs(currDate - e.listingDate) < 7 * 24 * 60 * 60 * 1000) {
                     recentListed.push(e)
                 }
             }
         
             let allMsg = ''
             if (latest.length != 0) {
-                allMsg += '============== 新债 ==============\n'
+                allMsg += '******* 新债 *******\n'
                 latest.forEach(e => {
-                    allMsg += `${e.SECURITY_NAME_ABBR}(${e.SECURITY_CODE})\n`
-                    allMsg += `申购/中签号发布日：${e.VALUE_DATE.substring(5, 10)}  ${e.BOND_START_DATE.substring(5, 10)}\n`
-                    allMsg += `详情：https://data.eastmoney.com/kzz/detail/${e.SECURITY_CODE}.html\n\n`
+                    allMsg += `${e.VALUE_DATE.substring(5, 10)} ${e.SECURITY_NAME_ABBR}(${e.SECURITY_CODE})\n`
                 })
             }
         
             if (recentListed.length != 0) {
-                allMsg += '============ 最近上市 ============\n'
-                recentListed.forEach(e => {
-                    allMsg += `${e.SECURITY_CODE}\t${e.SECURITY_NAME_ABBR}\n`;
-                    allMsg += `上市时间：${e.LISTING_DATE.substring(5, 10)}\n`;
-                    allMsg += `详情：https://data.eastmoney.com/kzz/detail/${e.SECURITY_CODE}.html\n\n`;
-                })
+                allMsg += '\n******* 最近上市 *******\n'
+                recentListed
+                    .sort((a, b) => b.listingDate - a.listingDate)
+                    .forEach(e => {
+                        allMsg += `${e.LISTING_DATE.substring(5, 10)} ${e.SECURITY_NAME_ABBR}(${e.SECURITY_CODE})\n`;
+                    })
             }
         
             allMsg = allMsg ? allMsg.trim() : '没有可转债打新！';
