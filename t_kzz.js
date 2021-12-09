@@ -51,10 +51,11 @@ const url = 'https://data.eastmoney.com/kzz/default.html'
                         allMsg += `${e.LISTING_DATE.substring(5, 10)} ${e.SECURITY_NAME_ABBR}(${e.SECURITY_CODE})\n`;
                     })
             }
-        
-            allMsg = allMsg ? allMsg.trim() : '没有可转债打新！';
-            console.log(allMsg)
-            await notify.sendNotify(`${name}`, allMsg)
+
+            if ((allMsg = allMsg.trim()) != '') {
+                console.log(allMsg)
+                await notify.sendNotify(`${name}`, allMsg)
+            }
         }
     })
 })();
