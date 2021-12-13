@@ -64,18 +64,20 @@ async function initFarmStatus () {
 
   console.log('\n初始化农场种植状态')
   const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
-  if (treeEnergy === treeTotalEnergy) {
+
+  if ($.farmInfo.treeState === 2 || $.farmInfo.treeState === 3) {
     console.log(`水果成熟，可以兑换啦！`)
     isFruitFinished = true;
-  } else {
-    if ($.farmInfo.otherExchangeGoods) {
-      choicePrizeFlag = true
-      console.log('已经领取红包，并未选择种子，等待自动选择！')
-    } else {
-      let cnt = (treeTotalEnergy - treeEnergy) / 10
-      console.log(`水果尚未成熟，还需要浇水${cnt}次`)
-      // message += `水果尚未成熟，还需要浇水${cnt}次`
-    }
+    choicePrizeFlag = true
+  } else if ($.farmInfo.treeState === 1) {
+    let cnt = (treeTotalEnergy - treeEnergy) / 10
+    console.log(`\n${$.farmInfo.farmUserPro.name} 还需浇水${cnt}次\n`)
+  } else if ($.farmInfo.treeState === 0) {
+    console.log(`已兑换红包, 但未开始种植新的水果`)
+    choicePrizeFlag = true
+  } else if ($.farmInfo.treeState === -1) {
+    console.log(`开启东东农场.`)
+    choicePrizeFlag = true
   }
 }
 
@@ -108,32 +110,31 @@ async function initHongbao () {
 async function choiceGoodsForFarm () {
   if (choicePrizeFlag) {
     await initForFarm();
-    if ($.farmInfo.otherExchangeGoods) {
-      console.log('\n自动选择奖品')
-      const { skuId, type, simpleName, name, totalEnergy, price, prizeLevel } = $.farmInfo.otherExchangeGoods[0];
+    const goods = $.farmInfo.otherExchangeGoods ? $.farmInfo.otherExchangeGoods[0] : $.farmInfo.farmUserPro;
+    const { skuId, type, simpleName, name, totalEnergy, price, prizeLevel } = goods;
 
-      const functionId = arguments.callee.name.toString();
-      const choiceRes = await request(functionId, {
-        goodsType: type,
-        type: '0',
-        babelChannel: '120',
-        version: 14,
-        channel: 1
-      });
+    console.log('\n自动选择奖品')
+    const functionId = arguments.callee.name.toString();
+    const choiceRes = await request(functionId, {
+      goodsType: type,
+      type: '0',
+      babelChannel: '120',
+      version: 14,
+      channel: 1,
+      sid: "738bf132bc7a1f87bf235e97aec8973w",
+      un_area: "4_51026_103_0",
+    });
 
-      if (choiceRes.code === '0') {
-        console.log(`奖品选择成功！`)
-        console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
-        console.log(`${simpleName} ${name}`)
-        message += `选择种子：${simpleName} ${name} 【L${prizeLevel}】`
-        message += `奖励红包：${price}元，需要浇水：${totalEnergy}/次`
-        await gotStageAwardForFarm()
-      } else {
-        console.log(`奖品选择失败：${choiceRes}`)
-        message += `选择种子失败！`
-      }
+    if (choiceRes.code === '0') {
+      console.log(`奖品选择成功！`)
+      console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
+      console.log(`${simpleName} ${name}`)
+      message += `选择种子：${simpleName} ${name} 【L${prizeLevel}】`
+      message += `奖励红包：${price}元，需要浇水：${totalEnergy}/次`
+      await gotStageAwardForFarm()
     } else {
-      console.log('已选择奖品，无需重复选择！')
+      console.log(`奖品选择失败：${JSON.stringify(choiceRes)}`)
+      message += `选择种子失败！`
     }
   }
 }
