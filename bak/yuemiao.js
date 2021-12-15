@@ -1,7 +1,4 @@
-/*
-cron 0 8 * * 1,5 t_yuemiao.js
-new Env('约苗');
-*/
+
 const $ = new Env('约苗');
 const notify = $.isNode() ? require('./sendNotify') : '';
 
