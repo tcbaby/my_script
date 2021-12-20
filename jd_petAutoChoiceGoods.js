@@ -35,7 +35,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             await jdPet();
         }
     }
-    if ($.isNode() && allMessage && $.ctrTemp) {
+    if ($.isNode() && allMessage) {
         await notify.sendNotify(`${$.name}`, `${allMessage}`)
     }
 })()
@@ -49,7 +49,7 @@ async function jdPet () {
     try {
         //查询jd宠物信息
         const initPetTownRes = await request('initPetTown');
-        subTitle = `【京东账号${$.index}】${$.nickName || $.UserName}\n`;
+        subTitle = `【京东账号${$.index}】${$.nickName || $.UserName}`;
         if (initPetTownRes.code === '0' && initPetTownRes.resultCode === '0' && initPetTownRes.message === 'success') {
             $.petInfo = initPetTownRes.result;
             if ($.petInfo.userStatus === 0) {
@@ -67,8 +67,8 @@ async function jdPet () {
                 console.log(`尚未成熟,请耐心等待!`)
             }
         } else if (initPetTownRes.code === '0') {
-            message += '初始化萌宠失败！'
-            console.log(`初始化萌宠失败:  ${initPetTownRes.message}`);
+            message += `开启萌宠失败: ${initPetTownRes.message}`
+            console.log(`开启萌宠失败:  ${initPetTownRes.message}`);
         }
 
         if (message) {

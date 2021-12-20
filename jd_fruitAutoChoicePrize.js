@@ -63,20 +63,23 @@ async function initFarmStatus () {
   isFruitFinished = false, choicePrizeFlag = false
 
   console.log('\n初始化农场种植状态')
-  const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
 
-  if ($.farmInfo.treeState === 2 || $.farmInfo.treeState === 3) {
+  if ($.farmInfo.code === '6') {
+    message += '活动太火爆啦！'
+    console.log(`活动太火爆啦！`)
+  } else if ($.farmInfo.treeState === -1) {
+    console.log(`开启东东农场.`)
+    choicePrizeFlag = true
+  } else if ($.farmInfo.treeState === 2 || $.farmInfo.treeState === 3) {
     console.log(`水果成熟，可以兑换啦！`)
     isFruitFinished = true;
     choicePrizeFlag = true
   } else if ($.farmInfo.treeState === 1) {
+    const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
     let cnt = (treeTotalEnergy - treeEnergy) / 10
     console.log(`\n${$.farmInfo.farmUserPro.name} 还需浇水${cnt}次\n`)
   } else if ($.farmInfo.treeState === 0) {
     console.log(`已兑换红包, 但未开始种植新的水果`)
-    choicePrizeFlag = true
-  } else if ($.farmInfo.treeState === -1) {
-    console.log(`开启东东农场.`)
     choicePrizeFlag = true
   }
 }
