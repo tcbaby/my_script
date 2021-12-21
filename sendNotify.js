@@ -184,12 +184,6 @@ async function sendNotify(
   params = {},
   author = '',
 ) {
-  const notifySkipList = process.env.NOTIFY_SKIP_NAMETYPELIST ? process.env.NOTIFY_SKIP_NAMETYPELIST.split('&') : [];
-  if (notifySkipList.find(e => e === text)) {
-    console.log(`${text} 在通知黑名单中，不发送通知！`)
-    return;
-  } 
-
   //提供6种通知
   desp += author; //增加作者信息，防止被贩卖等
   await Promise.all([
