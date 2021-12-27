@@ -1,5 +1,5 @@
 /*
-cron 0 8 * * 1,5 jd_bt.js
+cron 0 8 * * 1,5 t_bt.js
 new Env('京东白条');
 */
 const $ = new Env('京东白条');
