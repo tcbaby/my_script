@@ -54,7 +54,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
   })
 
 async function start() {
-  if (skipPins.indexOf($.UserName)) {
+  if (skipPins.indexOf($.UserName) != -1) {
     console.log(`跳过当前账号，不自动选择种子！`)
   } else {
     await initForFarm()
