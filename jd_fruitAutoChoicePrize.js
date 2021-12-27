@@ -4,7 +4,7 @@ cron 55 10,13 * * * jd_fruitAutoChoicePrize.js
 */
 const $ = new Env('东东农场选择种子');
 let cookiesArr = [], cookie = '', notify, allMessage = '';
-
+let skipPins = [];
 let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false;
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async () => {
@@ -34,12 +34,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
       subTitle = `【京东账号${$.index}】${$.nickName || $.UserName}`;
       option = {};
 
-      await initForFarm()
-      await taskInitForFarm()
-      await friendListInitForFarm()
-      await initFarmStatus()
-      await initHongbao()
-      await choiceGoodsForFarm()
+      await start();
 
       if (message) {
         $.msg(subTitle, message)
@@ -57,6 +52,19 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
   .finally(() => {
     $.done();
   })
+
+async function start() {
+  if (skipPins.indexOf($.UserName)) {
+    console.log(`跳过当前账号，不自动选择种子！`)
+  } else {
+    await initForFarm()
+    await taskInitForFarm()
+    await friendListInitForFarm()
+    await initFarmStatus()
+    await initHongbao()
+    await choiceGoodsForFarm()
+  }
+}
 
 async function initFarmStatus () {
   await initForFarm()
@@ -229,6 +237,12 @@ function requireConfig () {
       cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
     }
     console.log(`共${cookiesArr.length}个京东账号\n`)
+    if (process.env.FRUIT_CHOICE_PRIZE_SKIP_PINS) {
+      skipPins = process.env.FRUIT_CHOICE_PRIZE_SKIP_PINS.split('&');
+      console.log(`已设置跳过pin: \n${JSON.stringify(skipPins)}`)
+    } else {
+      console.log(`没有设置跳过pin，如需跳过请设置环境变量 FRUIT_CHOICE_PRIZE_SKIP_PINS `)
+    }
     resolve()
   })
 }
