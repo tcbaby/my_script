@@ -53,7 +53,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
     $.done();
   })
 
-async function start() {
+async function start () {
   if (skipPins.indexOf($.UserName) != -1) {
     console.log(`跳过当前账号，不自动选择种子！`)
   } else {
@@ -123,29 +123,33 @@ async function choiceGoodsForFarm () {
     await initForFarm();
 
     const goodsList = $.farmInfo.otherExchangeGoods || $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
-    const { skuId, type, simpleName, name, totalEnergy, price, prizeLevel } = anyOne(goodsList);
-
-    console.log('\n自动选择奖品')
     const functionId = arguments.callee.name.toString();
-    const choiceRes = await request(functionId, {
-      goodsType: type,
-      type: '0',
-      babelChannel: '120',
-      version: 14,
-      channel: 1,
-      sid: "738bf132bc7a1f87bf235e97aec8973w",
-      un_area: "4_51026_103_0",
-    });
+    const retry = 3;
 
-    if (choiceRes.code === '0') {
-      console.log(`奖品选择成功！`)
-      console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
-      console.log(`${simpleName} ${name}`)
-      message += `播种：【Lv${prizeLevel}】${name}(≈12RMB)\n`
-      await gotStageAwardForFarm()
-    } else {
-      console.log(`奖品选择失败：${JSON.stringify(choiceRes)}`)
-      message += `选择种子失败！`
+    for (let i = 0; i < retry; ++i) {
+      console.log('\n自动选择奖品')
+      const { skuId, type, simpleName, name, totalEnergy, price, prizeLevel } = anyOne(goodsList);
+      const choiceRes = await request(functionId, {
+        goodsType: type,
+        type: '0',
+        babelChannel: '120',
+        version: 14,
+        channel: 1,
+        sid: "738bf132bc7a1f87bf235e97aec8973w",
+        un_area: "4_51026_103_0",
+      });
+
+      if (choiceRes.code === '0') {
+        console.log(`奖品选择成功！`)
+        console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
+        console.log(`${simpleName} ${name}`)
+        message += `播种：【Lv${prizeLevel}】${name}(≈12RMB)\n`
+        await gotStageAwardForFarm()
+        break;
+      } else {
+        console.log(`选择【Lv${prizeLevel}】${name} 失败：${JSON.stringify(choiceRes)}`)
+        message += i === retry - 1 ? `选择【Lv${prizeLevel}】${name} 失败！` : '';
+      }
     }
   }
 }
