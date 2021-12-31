@@ -143,7 +143,7 @@ async function choiceGoodsForFarm () {
         console.log(`奖品选择成功！`)
         console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
         console.log(`${simpleName} ${name}`)
-        message += `播种：【Lv${prizeLevel}】${name}(≈12RMB)\n`
+        message += `播种：【Lv${prizeLevel}】${name}(≈${price}RMB)\n`
         await gotStageAwardForFarm()
         break;
       } else {
