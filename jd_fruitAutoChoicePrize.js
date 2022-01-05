@@ -5,6 +5,7 @@ cron 55 10,13 * * * jd_fruitAutoChoicePrize.js
 const $ = new Env('东东农场选择种子');
 let cookiesArr = [], cookie = '', notify, allMessage = '';
 let skipPins = [];
+let firstPrizeLevel = 4;
 let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false;
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async () => {
@@ -84,8 +85,7 @@ async function initFarmStatus () {
     choicePrizeFlag = true
   } else if ($.farmInfo.treeState === 1) {
     const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
-    let cnt = (treeTotalEnergy - treeEnergy) / 10
-    console.log(`\n${$.farmInfo.farmUserPro.name} 还需浇水${cnt}次\n`)
+    console.log(`\n${$.farmInfo.farmUserPro.name} 已浇水${treeEnergy / 10}次 还需浇水${(treeTotalEnergy - treeEnergy) / 10}次\n`)
   } else if ($.farmInfo.treeState === 0) {
     console.log(`已兑换红包, 但未开始种植新的水果`)
     choicePrizeFlag = true
@@ -121,14 +121,15 @@ async function initHongbao () {
 async function choiceGoodsForFarm () {
   if (choicePrizeFlag) {
     await initForFarm();
+    await getExchangeLevelList();
 
-    const goodsList = $.farmInfo.otherExchangeGoods || $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
+    const goodsList = $.prizeLevelMap[firstPrizeLevel] || $.prizeLevelMap[firstPrizeLevel - 1] || $.farmInfo.otherExchangeGoods || $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
     const functionId = arguments.callee.name.toString();
     const retry = 3;
 
     for (let i = 0; i < retry; ++i) {
       console.log('\n自动选择奖品')
-      const { skuId, type, simpleName, name, totalEnergy, price, prizeLevel } = anyOne(goodsList);
+      const { skuId, type, name, prizeLevel } = anyOne(goodsList);
       const choiceRes = await request(functionId, {
         goodsType: type,
         type: '0',
@@ -140,10 +141,8 @@ async function choiceGoodsForFarm () {
       });
 
       if (choiceRes.code === '0') {
-        console.log(`奖品选择成功！`)
-        console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包，需要水滴${totalEnergy}`)
-        console.log(`${simpleName} ${name}`)
-        message += `播种：【Lv${prizeLevel}】${name}(≈${price}RMB)\n`
+        console.log(`播种：【Lv${prizeLevel}】${name}`)
+        message += `播种：【Lv${prizeLevel}】${name}\n`
         await gotStageAwardForFarm()
         break;
       } else {
@@ -211,6 +210,25 @@ async function initForFarm () {
   })
 }
 
+// 获取种子等级列表
+async function getExchangeLevelList () {
+  console.log('\n获取种子等级列表')
+  const functionId = arguments.callee.name.toString();
+  const res = await request(functionId, { "version": 14, "channel": 1, "babelChannel": "120" });
+  $.prizeLevelMap = {};
+  if (res.code != '0') {
+    console.log(`${functionId}: ${JSON.stringify(res || {})}`)
+  } else {
+    res.prizeLevelList.forEach(e => {
+      $.prizeLevelMap[e.prizeLevel] = e.currentGoodList
+      e.currentGoodList.forEach(g => {
+        g.type = g.goodsType;
+        g.prizeLevel = e.prizeLevel;
+      })
+    })
+  }
+}
+
 // 初始化任务列表API
 async function taskInitForFarm () {
   console.log('\n初始化任务列表')
@@ -246,6 +264,18 @@ function requireConfig () {
       console.log(`已设置跳过pin: \n${JSON.stringify(skipPins)}`)
     } else {
       console.log(`没有设置跳过pin，如需跳过请设置环境变量 FRUIT_CHOICE_PRIZE_SKIP_PINS `)
+    }
+
+    if (process.env.FRUIT_PRIZE_LEVEL) {
+      let lv = [2, 3, 4].find(l => l == process.env.FRUIT_PRIZE_LEVEL);
+      if (lv) {
+        firstPrizeLevel = process.env.FRUIT_PRIZE_LEVEL;
+        console.log(`已设置优先种植 lv${firstPrizeLevel} 的种子`)
+      } else {
+        console.log(`变量 FRUIT_PRIZE_LEVEL 设置有误, 有效值：2/3/4`)
+      }
+    } else {
+      console.log(`未设置优先种植种子等级，默认优先种植 lv${firstPrizeLevel}, 如需设置请指定 变量 FRUIT_PRIZE_LEVEL, 有效值：2/3/4`)
     }
     resolve()
   })
