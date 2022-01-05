@@ -1,4 +1,6 @@
 #!/bin/sh
+# 格式化互助码
+# cron 30 22 * * 1,2 t_formatShareCode.sh
 
 allMsg=''
 
@@ -24,8 +26,8 @@ node shufflewzc_faker2_jd_get_share_code.js &> /tmp/shareCode.log
 total=`echo $JD_COOKIE | awk -F'&' '{print NF}'`
 count=$(($total/5 + 1))
 
-for i in `seq 0 $count`; do 
-    formatShareCode $(($i * 5 + 1)) $(($i * 5 + 5))
+for i in `seq 1 $count`; do 
+    formatShareCode $(($i * 5 - 4)) $(($i * 5))
 done
 
 curl -X POST "http://www.pushplus.plus/send" \
