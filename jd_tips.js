@@ -22,7 +22,7 @@ const tipsFile = './tips.txt'
             cookie = cookiesArr[i];
             await TotalBean();
             const pin = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-            let title = `****** 【${pin}】 ******\n`;
+            let title = `京东账号：${pin}\n`;
             let msg = '', log = '';
 
             log = city[pin] || city[$.nickName]
