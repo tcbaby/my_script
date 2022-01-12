@@ -2,7 +2,7 @@
 tips
 cron 5 18 * * * jd_tips.js
 */
-const $ = new Env('东东农场选择种子');
+const $ = new Env('tips');
 const notify = require('./sendNotify')
 const fs = require('fs')
 const path = require('path')
