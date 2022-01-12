@@ -137,7 +137,6 @@ function requireConfig () {
         RemainMessage += "⭕提醒:⭕" + '\n';
         RemainMessage += "【城城领现金】：京东 -> 我的 -> 我的年货节 -> 城城分现金（提现/兑换红包）\n"
         RemainMessage += "【极速金币】：京东极速板 -> 我的 -> 金币（一天可兑一次红包，红包2天有效）\n"
-        RemainMessage += '【京东秒杀】京东->中间频道往右划找到京东秒杀->中间点立即签到->兑换无门槛红包(京东使用)\n';
     } else {
         console.log(`没有设置 JD_COOKIE 变量！`)
         process.exit(0);
