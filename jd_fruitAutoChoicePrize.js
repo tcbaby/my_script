@@ -71,7 +71,7 @@ async function initFarmStatus () {
   await initForFarm()
   isFruitFinished = false, choicePrizeFlag = false
 
-  console.log('\n初始化农场种植状态')
+  console.log(`\n初始化农场种植状态: {treeState: ${$.farmInfo.treeState}}`)
 
   if ($.farmInfo.code === '6') {
     message += '活动太火爆啦！'
@@ -79,14 +79,14 @@ async function initFarmStatus () {
   } else if ($.farmInfo.treeState === -1) {
     console.log(`开启东东农场.`)
     choicePrizeFlag = true
-  } else if ($.farmInfo.treeState === 2 || $.farmInfo.treeState === 3) {
+  } else if ($.farmInfo.treeState === 2) {
     console.log(`水果成熟，可以兑换啦！`)
     isFruitFinished = true;
     choicePrizeFlag = true
   } else if ($.farmInfo.treeState === 1) {
     const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
     console.log(`\n${$.farmInfo.farmUserPro.name} 已浇水${treeEnergy / 10}次 还需浇水${(treeTotalEnergy - treeEnergy) / 10}次\n`)
-  } else if ($.farmInfo.treeState === 0) {
+  } else {
     console.log(`已兑换红包, 但未开始种植新的水果`)
     choicePrizeFlag = true
   }
@@ -120,16 +120,12 @@ async function initHongbao () {
 /** 选择奖品 */
 async function choiceGoodsForFarm () {
   if (choicePrizeFlag) {
-    await initForFarm();
-    await getExchangeLevelList();
-
-    const goodsList = $.prizeLevelMap[firstPrizeLevel] || $.prizeLevelMap[firstPrizeLevel - 1] || $.farmInfo.otherExchangeGoods || $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
     const functionId = arguments.callee.name.toString();
     const retry = 3;
 
     for (let i = 0; i < retry; ++i) {
       console.log('\n自动选择奖品')
-      const { skuId, type, name, prizeLevel } = anyOne(goodsList);
+      const { skuId, type, name, prizeLevel, price } = await getPrize();
       const choiceRes = await request(functionId, {
         goodsType: type,
         type: '0',
@@ -141,8 +137,8 @@ async function choiceGoodsForFarm () {
       });
 
       if (choiceRes.code === '0') {
-        console.log(`播种：【Lv${prizeLevel}】${name}`)
-        message += `播种：【Lv${prizeLevel}】${name}\n`
+        console.log(`【Lv${prizeLevel}】${name} ￥${price} 已播种`)
+        message += `【Lv${prizeLevel}】${name} ￥${price} 已播种\n`
         await gotStageAwardForFarm()
         break;
       } else {
@@ -172,16 +168,16 @@ async function initForFarm () {
   return new Promise(resolve => {
     const option = {
       url: `${JD_API_HOST}?functionId=initForFarm`,
-      body: `body=${escape(JSON.stringify({ "version": 4 }))}&appid=wh5&clientVersion=9.1.0`,
+      body: `body=${escape(JSON.stringify({ "babelChannel":"121", "version": 14, "channel":1 }))}&appid=wh5&clientVersion=9.1.0`,
       headers: {
         "accept": "*/*",
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "zh-CN,zh;q=0.9",
         "cache-control": "no-cache",
         "cookie": cookie,
-        "origin": "https://home.m.jd.com",
+        "origin": "https://carry.m.jd.com",
         "pragma": "no-cache",
-        "referer": "https://home.m.jd.com/myJd/newhome.action",
+        "referer": "https://carry.m.jd.com/",
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-site",
@@ -210,23 +206,14 @@ async function initForFarm () {
   })
 }
 
-// 获取种子等级列表
-async function getExchangeLevelList () {
-  console.log('\n获取种子等级列表')
-  const functionId = arguments.callee.name.toString();
-  const res = await request(functionId, { "version": 14, "channel": 1, "babelChannel": "120" });
-  $.prizeLevelMap = {};
-  if (res.code != '0') {
-    console.log(`${functionId}: ${JSON.stringify(res || {})}`)
-  } else {
-    res.prizeLevelList.forEach(e => {
-      $.prizeLevelMap[e.prizeLevel] = e.currentGoodList
-      e.currentGoodList.forEach(g => {
-        g.type = g.goodsType;
-        g.prizeLevel = e.prizeLevel;
-      })
-    })
+// 获取一枚种子
+async function getPrize () {
+  if (!$.farmInfo.farmLevelWinGoods) {
+    await initForFarm();
   }
+  const levelMap = $.farmInfo.farmLevelWinGoods || {};
+  const goodsList = levelMap[firstPrizeLevel] || levelMap[firstPrizeLevel - 1] || $.farmInfo.otherExchangeGoods || $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
+  return anyOne(goodsList);
 }
 
 // 初始化任务列表API
