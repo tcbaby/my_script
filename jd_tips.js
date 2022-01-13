@@ -8,7 +8,7 @@ const fs = require('fs')
 const path = require('path')
 
 let cookiesArr = [], allMsg = '', RemainMessage = '';
-const repo = 'shufflewzc_faker2';
+let logPathPrefix = '/ql/log/author_repo_';
 const tipsFile = './tips.txt'
 
 !(async () => {
@@ -22,7 +22,7 @@ const tipsFile = './tips.txt'
             cookie = cookiesArr[i];
             await TotalBean();
             const pin = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-            let title = `京东账号：${pin}\n`;
+            let title = `【京东账号】：${$.nickName}\n`;
             let msg = '', log = '';
 
             log = city[pin] || city[$.nickName]
@@ -78,7 +78,7 @@ function getSignFeePinLog () {
 }
 
 function getLastLogFile (scriptName) {
-    let dir = `/ql/log/${repo}_${scriptName}`;
+    let dir = `${logPathPrefix}${scriptName}`;
 
     if (fs.existsSync(dir)) {
         const files = fs.readdirSync(dir)
@@ -87,7 +87,6 @@ function getLastLogFile (scriptName) {
         }
     }
     console.log(`没有日志：${dir}`)
-    // return scriptName === 'jd_signFree' ? './log/log2.log' : './log/log1.log';
 }
 
 /**
@@ -122,8 +121,9 @@ function getLogMap (scriptName) {
 }
 
 function requireConfig () {
-    if (process.env.JD_COOKIE) {
+    if (process.env.JD_COOKIE && process.env.TIPS_LOG_PATH_PRIFIX) {
         cookiesArr = process.env.JD_COOKIE.split('&');
+        logPathPrefix = process.env.TIPS_LOG_PATH_PRIFIX;
 
         // tips
         if (fs.existsSync(tipsFile)) {
@@ -133,12 +133,8 @@ function requireConfig () {
                 RemainMessage += data.trim() + '\n\n';
             }
         }
-
-        RemainMessage += "⭕提醒:⭕" + '\n';
-        RemainMessage += "【城城领现金】：京东 -> 我的 -> 我的年货节 -> 城城分现金（提现/兑换红包）\n"
-        RemainMessage += "【极速金币】：京东极速板 -> 我的 -> 金币（一天可兑一次红包，红包2天有效）\n"
     } else {
-        console.log(`没有设置 JD_COOKIE 变量！`)
+        console.log(`没有设置 JD_COOKIE 或者 TIPS_LOG_PATH_PRIFIX 变量！`)
         process.exit(0);
     }
 }
