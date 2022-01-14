@@ -20,9 +20,11 @@ const tipsFile = './tips.txt'
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
+            $.nickName = '';
+            await $.wait(200)
             await TotalBean();
             const pin = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-            let title = `【京东账号】：${$.nickName}\n`;
+            let title = `【京东账号】：${$.nickName || pin}\n`;
             let msg = '', log = '';
 
             log = city[pin] || city[$.nickName]
@@ -38,6 +40,7 @@ const tipsFile = './tips.txt'
             if (msg) {
                 msg = title + msg;
                 allMsg += msg;
+                $.msg(msg);
                 if (notify.sendNotifybyWxPucher) {
                     await notify.sendNotifybyWxPucher('tips', `${msg}${RemainMessage}`, pin)
                 }
