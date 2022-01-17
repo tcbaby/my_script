@@ -37,13 +37,11 @@ const tipsFile = './tips.txt'
                 msg += `【签到免单】：\n${sign[pin]}\n\n`
             }
 
-            if (msg) {
-                msg = title + msg;
-                allMsg += msg;
-                $.msg(msg);
-                if (notify.sendNotifybyWxPucher) {
-                    await notify.sendNotifybyWxPucher('tips', `${msg}${RemainMessage}`, pin)
-                }
+            msg = title + msg;
+            allMsg += msg;
+            $.msg(msg);
+            if (notify.sendNotifybyWxPucher) {
+                await notify.sendNotifybyWxPucher('tips', `${msg}${RemainMessage}`, pin)
             }
         }
     }
