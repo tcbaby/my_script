@@ -27,6 +27,8 @@ const tipsFile = './tips.txt'
             let title = `【京东账号】：${$.nickName || pin}\n`;
             let msg = '', log = '';
 
+            msg += await getCouponMsg();
+
             log = city[pin] || city[$.nickName]
             if (log) {
                 msg += `【城城领现金】：\n${log}\n\n`
@@ -37,9 +39,11 @@ const tipsFile = './tips.txt'
                 msg += `【签到免单】：\n${sign[pin]}\n\n`
             }
 
-            msg = title + msg;
-            allMsg += msg;
-            $.msg(msg);
+            if (msg) {
+                msg = title + msg;
+                allMsg += msg;
+                $.msg(msg);
+            }
             if (notify.sendNotifybyWxPucher) {
                 await notify.sendNotifybyWxPucher('tips', `${msg}${RemainMessage}`, pin)
             }
@@ -48,6 +52,20 @@ const tipsFile = './tips.txt'
     console.log(allMsg, RemainMessage)
     await notify.sendNotify('tips', allMsg + RemainMessage)
 })();
+
+async function getCouponMsg () {
+    const coupons = await getCoupon()
+        .then(res => res.filter(c => [7, 8].indexOf(c.couponStyle) != -1 && c.discount / c.quota > 0.5));
+    if (coupons.length > 0) {
+        const str = coupons.map(c => {
+            const time = `${$.time('MM/dd', Number.parseInt(c.startTime))} - ${$.time('MM/dd', Number.parseInt(c.endTime))}`;
+            const couponType = `${c.couponStyle === 7 ? '支付券' : '白条券'}`;
+            return `${time} ${couponType} 满${c.quota}减${c.discount}`
+        }).join('\n');
+        return `【优惠券】：\n${str}\n\n`;
+    }
+    return '';
+}
 
 function getCityPinLog () {
     console.log('*********** 开始整理城城领现金日志 ***********')
@@ -138,6 +156,32 @@ function requireConfig () {
         console.log(`没有设置 JD_COOKIE 或者 TIPS_LOG_PATH_PRIFIX 变量！`)
         process.exit(0);
     }
+}
+
+function getCoupon () {
+    return new Promise(resolve => {
+        let options = {
+            url: `https://wq.jd.com/activeapi/queryjdcouponlistwithfinance?state=1&wxadd=1&filterswitch=1&_=${Date.now()}&sceneval=2&g_login_type=1&callback=jsonpCBKB&g_ty=ls`,
+            headers: {
+                'authority': 'wq.jd.com',
+                "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+                'accept': '*/*',
+                'referer': 'https://wqs.jd.com/',
+                'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+                'cookie': cookie
+            }
+        }
+        $.get(options, async (err, resp, data) => {
+            try {
+                data = JSON.parse(data.match(new RegExp(/jsonpCBK.?\((.*);*/))[1]);
+                resolve(data.coupon.useable)
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve();
+            }
+        })
+    })
 }
 
 function TotalBean () {
