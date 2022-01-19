@@ -14,7 +14,6 @@ const tipsFile = './tips.txt'
 !(async () => {
     requireConfig();
 
-    const city = getCityPinLog();
     const sign = getSignFeePinLog();
 
     for (let i = 0; i < cookiesArr.length; i++) {
@@ -28,11 +27,6 @@ const tipsFile = './tips.txt'
             let msg = '', log = '';
 
             msg += await getCouponMsg();
-
-            log = city[pin] || city[$.nickName]
-            if (log) {
-                msg += `【城城领现金】：\n${log}\n\n`
-            }
 
             log = sign[pin] || sign[$.nickName]
             if (log) {
@@ -83,7 +77,6 @@ function getCityPinLog () {
     })
     return pinMap;
 }
-
 
 function getSignFeePinLog () {
     console.log('*********** 开始整理签到免单日志 ***********')
