@@ -108,8 +108,7 @@ async function initHongbao () {
 
       const { winTimes, treeEnergy, treeTotalEnergy } = $.farmHongBao.farmUserPro;
       console.log(`已成功兑换${winTimes}次`)
-      console.log(`当前水滴数：${treeEnergy}, 需要水滴数：${treeTotalEnergy}`)
-      message += `${simpleName} ${name} 已成熟 领取红包${price}元\n`
+      message += `【Lv${prizeLevel}】${name} ￥${price} 领取成功\n`
     } else {
       console.log(`失败：${$.farmHongBao}`)
       message += '水果已经成熟，领取红包失败！'
@@ -137,8 +136,8 @@ async function choiceGoodsForFarm () {
       });
 
       if (choiceRes.code === '0') {
-        console.log(`【Lv${prizeLevel}】${name} ￥${price} 已播种`)
-        message += `【Lv${prizeLevel}】${name} ￥${price} 已播种\n`
+        console.log(`【Lv${prizeLevel}】${name} ￥${price} 播种成功`)
+        message += `【Lv${prizeLevel}】${name} ￥${price} 播种成功\n`
         await gotStageAwardForFarm()
         break;
       } else {
