@@ -89,7 +89,6 @@ async function initFarmStatus () {
   } else if ($.farmInfo.treeState === 1) {
     const { treeEnergy, treeTotalEnergy, prizeLevel } = $.farmInfo.farmUserPro;
     console.log(`\n${$.farmInfo.farmUserPro.name} 已浇水${treeEnergy / 10}次 还需浇水${(treeTotalEnergy - treeEnergy) / 10}次\n`)
-    exchangeFlag = prizeLevel < firstPrizeLevel
   } else {
     console.log(`已兑换红包, 但未开始种植新的水果`)
     choicePrizeFlag = true
