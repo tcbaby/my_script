@@ -6,7 +6,7 @@ const $ = new Env('东东农场选择种子');
 let cookiesArr = [], cookie = '', notify, allMessage = '';
 let skipPins = [];
 let firstPrizeLevel = 4;
-let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false;
+let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false, initFlag = false, exchangeFlag = false
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async () => {
   await requireConfig();
@@ -64,12 +64,13 @@ async function start () {
     await initFarmStatus()
     await initHongbao()
     await choiceGoodsForFarm()
+    await exchangeGood();
   }
 }
 
 async function initFarmStatus () {
   await initForFarm()
-  isFruitFinished = false, choicePrizeFlag = false
+  isFruitFinished = false, choicePrizeFlag = false, initFlag = false, exchangeFlag = false
 
   console.log(`\n初始化农场种植状态: {treeState: ${$.farmInfo.treeState}}`)
 
@@ -78,14 +79,17 @@ async function initFarmStatus () {
     console.log(`活动太火爆啦！`)
   } else if ($.farmInfo.treeState === -1) {
     console.log(`开启东东农场.`)
+    initFlag = true
     choicePrizeFlag = true
+    exchangeFlag = firstPrizeLevel > 2
   } else if ($.farmInfo.treeState === 2) {
     console.log(`水果成熟，可以兑换啦！`)
     isFruitFinished = true;
     choicePrizeFlag = true
   } else if ($.farmInfo.treeState === 1) {
-    const { treeEnergy, treeTotalEnergy } = $.farmInfo.farmUserPro;
+    const { treeEnergy, treeTotalEnergy, prizeLevel } = $.farmInfo.farmUserPro;
     console.log(`\n${$.farmInfo.farmUserPro.name} 已浇水${treeEnergy / 10}次 还需浇水${(treeTotalEnergy - treeEnergy) / 10}次\n`)
+    exchangeFlag = prizeLevel < firstPrizeLevel
   } else {
     console.log(`已兑换红包, 但未开始种植新的水果`)
     choicePrizeFlag = true
@@ -138,6 +142,7 @@ async function choiceGoodsForFarm () {
       if (choiceRes.code === '0') {
         console.log(`【Lv${prizeLevel}】${name} ￥${price} 播种成功`)
         message += `【Lv${prizeLevel}】${name} ￥${price} 播种成功\n`
+        await waterGoodForFarm()
         await gotStageAwardForFarm()
         break;
       } else {
@@ -152,12 +157,60 @@ async function choiceGoodsForFarm () {
 async function gotStageAwardForFarm () {
   console.log('\n领取赠送的水滴')
   const functionId = arguments.callee.name.toString();
-  const res = await request(functionId, { "type": 4, "version": 14, "channel": 1, "babelChannel": "120" });
+  const res = await request(functionId, { "type": initFlag ? 1 : 4, "version": 14, "channel": 1, "babelChannel": "120" });
   if (res.code === '0') {
     console.log(`领取成功, 增加水滴${res.addEnergy}g`)
   } else {
-    console.log(`领取失败：${res}`)
+    console.log(`领取失败：${JSON.stringify(res)}`)
   }
+}
+
+//浇水API
+async function waterGoodForFarm () {
+  await $.wait(1000);
+  console.log('等待了1秒');
+
+  const functionId = arguments.callee.name.toString();
+  $.waterResult = await request(functionId);
+}
+
+async function exchangeGood () {
+  await waterGoodForFarm();
+  if (exchangeFlag) {
+    console.log('\n开始更换高等级商品！')
+    const levelMap = await getExchangeLevelList()
+    const goodsList = levelMap[firstPrizeLevel];
+    const { skuId, type, name, prizeLevel } = anyOne(goodsList);
+    const functionId = arguments.callee.name.toString();
+
+    const res = await request(functionId, { "afterPrizeLevel": 4, "afterSkuId": skuId, "afterGoodsType": type, "version": 14, "channel": 1, "babelChannel": "120" });
+    if (res.code === '0') {
+      console.log(`【Lv${prizeLevel}】${name} 更换成功`)
+      message += `【Lv${prizeLevel}】${name} 更换成功\n`
+    } else {
+      console.log(`更换商品失败：${JSON.stringify(res)}`)
+    }
+  }
+}
+
+// 获取种子等级列表
+async function getExchangeLevelList () {
+  console.log('\n获取种子等级列表')
+  const functionId = arguments.callee.name.toString();
+  const res = await request(functionId, { "version": 14, "channel": 1, "babelChannel": "120" });
+  prizeLevelMap = {};
+  if (res.code != '0') {
+    console.log(`${functionId}: ${JSON.stringify(res || {})}`)
+  } else {
+    res.prizeLevelList.forEach(e => {
+      prizeLevelMap[e.prizeLevel] = e.currentGoodList
+      e.currentGoodList.forEach(g => {
+        g.type = g.goodsType;
+        g.prizeLevel = e.prizeLevel;
+      })
+    })
+  }
+  return prizeLevelMap;
 }
 
 /**
@@ -167,7 +220,7 @@ async function initForFarm () {
   return new Promise(resolve => {
     const option = {
       url: `${JD_API_HOST}?functionId=initForFarm`,
-      body: `body=${escape(JSON.stringify({ "babelChannel":"121", "version": 14, "channel":1 }))}&appid=wh5&clientVersion=9.1.0`,
+      body: `body=${escape(JSON.stringify({ "babelChannel": "121", "version": 14, "channel": 1 }))}&appid=wh5&clientVersion=9.1.0`,
       headers: {
         "accept": "*/*",
         "accept-encoding": "gzip, deflate, br",
