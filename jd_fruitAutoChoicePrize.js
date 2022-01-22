@@ -58,10 +58,7 @@ async function start () {
   if (skipPins.indexOf($.UserName) != -1) {
     console.log(`跳过当前账号，不自动选择种子！`)
   } else {
-    await initForFarm()
-    await taskInitForFarm()
-    await friendListInitForFarm()
-    await initFarmStatus()
+    await Promise.all([initFarmStatus(), taskInitForFarm(), friendListInitForFarm()])
     await initHongbao()
     await choiceGoodsForFarm()
     await exchangeGood();
@@ -72,7 +69,7 @@ async function initFarmStatus () {
   await initForFarm()
   isFruitFinished = false, choicePrizeFlag = false, initFlag = false, exchangeFlag = false
 
-  console.log(`\n初始化农场种植状态: {treeState: ${$.farmInfo.treeState}}`)
+  console.log(`\n农场种植状态: {treeState: ${$.farmInfo.treeState}}`)
 
   if ($.farmInfo.code === '6') {
     message += '活动太火爆啦！'
@@ -88,7 +85,7 @@ async function initFarmStatus () {
     choicePrizeFlag = true
   } else if ($.farmInfo.treeState === 1) {
     const { treeEnergy, treeTotalEnergy, prizeLevel } = $.farmInfo.farmUserPro;
-    console.log(`\n${$.farmInfo.farmUserPro.name} 已浇水${treeEnergy / 10}次 还需浇水${(treeTotalEnergy - treeEnergy) / 10}次\n`)
+    console.log(`\n【Lv${prizeLevel}】${$.farmInfo.farmUserPro.name} 已浇水${treeEnergy / 10}次 还需浇水${(treeTotalEnergy - treeEnergy) / 10}次\n`)
   } else {
     console.log(`已兑换红包, 但未开始种植新的水果`)
     choicePrizeFlag = true
@@ -167,15 +164,16 @@ async function gotStageAwardForFarm () {
 //浇水API
 async function waterGoodForFarm () {
   await $.wait(1000);
-  console.log('等待了1秒');
-
   const functionId = arguments.callee.name.toString();
-  $.waterResult = await request(functionId);
+  const res = await request(functionId);
+  if (res.code === '0') {
+    console.log(`浇水一次, 剩余水滴：${res.totalEnergy}g`)
+  }
 }
 
 async function exchangeGood () {
-  await waterGoodForFarm();
   if (exchangeFlag) {
+    await waterGoodForFarm();
     console.log('\n开始更换高等级商品！')
     const levelMap = await getExchangeLevelList()
     const goodsList = levelMap[firstPrizeLevel];
@@ -276,7 +274,6 @@ async function taskInitForFarm () {
 //获取好友列表API
 async function friendListInitForFarm () {
   $.friendList = await request('friendListInitForFarm', { "version": 4, "channel": 1 });
-  // console.log('aa', aa);
 }
 
 function requireConfig () {
