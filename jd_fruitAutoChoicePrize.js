@@ -6,7 +6,7 @@ const $ = new Env('东东农场选择种子');
 let cookiesArr = [], cookie = '', notify, allMessage = '';
 let skipPins = [];
 let firstPrizeLevel = 4;
-let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false, initFlag = false, exchangeFlag = false
+let message = '', subTitle = '', option = {}, isFruitFinished = false, choicePrizeFlag = false, exchangeFlag = false
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async () => {
   await requireConfig();
@@ -67,7 +67,7 @@ async function start () {
 
 async function initFarmStatus () {
   await initForFarm()
-  isFruitFinished = false, choicePrizeFlag = false, initFlag = false, exchangeFlag = false
+  isFruitFinished = false, choicePrizeFlag = false, exchangeFlag = false
 
   console.log(`\n农场种植状态: {treeState: ${$.farmInfo.treeState}}`)
 
@@ -76,7 +76,6 @@ async function initFarmStatus () {
     console.log(`活动太火爆啦！`)
   } else if ($.farmInfo.treeState === -1) {
     console.log(`开启东东农场.`)
-    initFlag = true
     choicePrizeFlag = true
     exchangeFlag = firstPrizeLevel > 2
   } else if ($.farmInfo.treeState === 2) {
@@ -153,7 +152,7 @@ async function choiceGoodsForFarm () {
 async function gotStageAwardForFarm () {
   console.log('\n领取赠送的水滴')
   const functionId = arguments.callee.name.toString();
-  const res = await request(functionId, { "type": initFlag ? 1 : 4, "version": 14, "channel": 1, "babelChannel": "120" });
+  const res = await request(functionId, { "type": 1, "version": 14, "channel": 1, "babelChannel": "120" });
   if (res.code === '0') {
     console.log(`领取成功, 增加水滴${res.addEnergy}g`)
   } else {
