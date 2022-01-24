@@ -1,6 +1,6 @@
 #!/bin/sh
-# 互助码
-# cron 30 22 * * 0,1 t_formatShareCode.sh
+# 格式化互助码 需保证脚本 jd_get_share_code 先于本脚本运行产生日志
+# cron 30 21 * * 0,6 t_formatShareCode.sh
 
 if [ -z "$LOG_PATH_PRIFIX" ]; then
     echo 请设置变量 LOG_PATH_PRIFIX 指定日志路径前缀
@@ -17,7 +17,7 @@ logFile=`ls -lt | grep '^-' | awk 'NR==1 {print $9}'`
 echo "log file: $logFile"
 
 function formatShareCode() {
-    local title="************* format $1 $2 **************"
+    local title="---------- format $1 $2 ----------"
     echo $title
 
     local m1=`cat $logFile | awk -F'】' '/京东农场】[A-z0-9=]+/ {print $2}' | sed -n "$1,$2p" | tr "\n" "&" | sed -r 's#^(.*)\&$#/farm \1\n#'`
