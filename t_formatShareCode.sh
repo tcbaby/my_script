@@ -2,12 +2,19 @@
 # 互助码
 # cron 30 22 * * 0,1 t_formatShareCode.sh
 
+if [ -z "$LOG_PATH_PRIFIX" ]; then
+    echo 请设置变量 LOG_PATH_PRIFIX 指定日志路径前缀
+    echo Usage: export LOG_PATH_PRIFIX='/ql/log/repo_'
+    echo Usage: export LOG_PATH_PRIFIX='/ql/log/repo/'
+    exit 0
+fi
+
 allMsg=''
-logDir='/ql/log/shufflewzc_faker2_jd_get_share_code/';
+logDir="${LOG_PATH_PRIFIX}jd_get_share_code/";
 
 cd $logDir
 logFile=`ls -lt | grep '^-' | awk 'NR==1 {print $9}'`
-echo "file: $logFile"
+echo "log file: $logFile"
 
 function formatShareCode() {
     local title="************* format $1 $2 **************"

@@ -133,9 +133,9 @@ function getLogMap (scriptName) {
 }
 
 function requireConfig () {
-    if (process.env.JD_COOKIE && process.env.TIPS_LOG_PATH_PRIFIX) {
+    if (process.env.JD_COOKIE && process.env.LOG_PATH_PRIFIX) {
         cookiesArr = process.env.JD_COOKIE.split('&');
-        logPathPrefix = process.env.TIPS_LOG_PATH_PRIFIX;
+        logPathPrefix = process.env.LOG_PATH_PRIFIX;
 
         // tips
         if (fs.existsSync(tipsFile)) {
@@ -146,7 +146,7 @@ function requireConfig () {
             }
         }
     } else {
-        console.log(`没有设置 JD_COOKIE 或者 TIPS_LOG_PATH_PRIFIX 变量！`)
+        console.log(`没有设置 JD_COOKIE 或者 LOG_PATH_PRIFIX 变量！`)
         process.exit(0);
     }
 }
