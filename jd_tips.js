@@ -26,7 +26,7 @@ const tipsFile = './tips.txt'
             let title = `【京东账号】：${$.nickName || pin}\n`;
             let msg = '', log = '';
 
-            msg += await getCouponMsg();
+            // msg += await getCouponMsg();
 
             log = sign[pin] || sign[$.nickName]
             if (log) {
