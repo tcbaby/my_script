@@ -37,9 +37,9 @@ const tipsFile = './tips.txt'
                 msg = title + msg;
                 allMsg += msg;
                 $.msg(msg);
-            }
-            if (notify.sendNotifybyWxPucher) {
-                await notify.sendNotifybyWxPucher('tips', `${msg}${RemainMessage}`, pin)
+                if (notify.sendNotifybyWxPucher) {
+                    await notify.sendNotifybyWxPucher('tips', `${msg}${RemainMessage}`, pin)
+                }
             }
         }
     }
