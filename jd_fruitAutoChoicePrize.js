@@ -62,6 +62,7 @@ async function start () {
     await initHongbao()
     await choiceGoodsForFarm()
     await exchangeGood();
+    await gotNewUserTaskForFarm();
   }
 }
 
@@ -145,6 +146,17 @@ async function choiceGoodsForFarm () {
         message += i === retry - 1 ? `选择【Lv${prizeLevel}】${name} 失败！` : '';
       }
     }
+  }
+}
+
+async function gotNewUserTaskForFarm () {
+  console.log('\n尝试领取新用户水滴')
+  const functionId = arguments.callee.name.toString();
+  const res = await request(functionId, { "version": 14, "channel": 1, "babelChannel": "120" });
+  if (res.code === '0') {
+    console.log(`领取成功, 增加水滴${res.addEnergy}g`)
+  } else {
+    console.log(`领取失败：${JSON.stringify(res)}`)
   }
 }
 
