@@ -15,6 +15,7 @@ const tipsFile = './tips.txt'
     requireConfig();
 
     const sign = getSignFeePinLog();
+    allMsg += '\n'
 
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
@@ -43,7 +44,7 @@ const tipsFile = './tips.txt'
             }
         }
     }
-    console.log(allMsg, RemainMessage)
+    $.msg(allMsg + RemainMessage)
     await notify.sendNotify('tips', allMsg + RemainMessage)
 })();
 
@@ -111,6 +112,7 @@ function getLogMap (scriptName) {
 
     if (file) {
         console.log(`read file: ${file}`)
+        allMsg += `${file}\n`
         const lines = fs.readFileSync(file, { encoding: 'utf-8' }).split('\n')
             .map(line => line.trim()).filter(line => line);
         const idxs = lines.map((line, idx) => line.indexOf("开始【京东账号") != -1 ? idx : -1).filter(e => e != -1)
