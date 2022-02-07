@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "got": "^11.8.2",
+    "playwright-chromium": "^1.18.1",
     "request": "^2.88.2",
     "tunnel": "0.0.6"
   }
