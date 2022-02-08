@@ -488,3 +488,5 @@ function Env (name, opts) {
         }
     })(name, opts)
 }
+
+module.exports = Env;
