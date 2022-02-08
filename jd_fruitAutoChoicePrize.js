@@ -43,6 +43,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
       }
     }
   }
+  $.writedata()
   if ($.isNode() && allMessage) {
     await notify.sendNotify(`${$.name}`, `${allMessage}`)
   }
@@ -150,13 +151,19 @@ async function choiceGoodsForFarm () {
 }
 
 async function gotNewUserTaskForFarm () {
-  console.log('\n尝试领取新用户水滴')
-  const functionId = arguments.callee.name.toString();
-  const res = await request(functionId, { "version": 14, "channel": 1, "babelChannel": "120" });
-  if (res.code === '0') {
-    console.log(`领取成功, 增加水滴${res.addEnergy}g`)
+  const times = $.data[$.UserName] || 0
+  if (times < 2) {
+    console.log('\n尝试领取新用户水滴')
+    const functionId = arguments.callee.name.toString();
+    const res = await request(functionId, { "version": 14, "channel": 1, "babelChannel": "120" });
+    if (res.code === '0') {
+      console.log(`领取成功, 增加水滴${res.addEnergy}g`)
+    } else {
+      console.log(`领取失败：${JSON.stringify(res)}`)
+    }
+    $.data[$.UserName] = times + 1;
   } else {
-    console.log(`领取失败：${JSON.stringify(res)}`)
+    console.log('\n跳过领取新用户水滴')
   }
 }
 
@@ -323,6 +330,10 @@ function requireConfig () {
     } else {
       console.log(`未设置优先种植种子等级，默认优先种植 lv${firstPrizeLevel}, 如需设置请指定 变量 FRUIT_PRIZE_LEVEL, 有效值：2/3/4`)
     }
+
+    // key: '用户名', value: '已尝试领取次数'
+    $.dataFile = "newUserWaterCntMap.txt"
+    $.data = $.loaddata() || {}
     resolve()
   })
 }
