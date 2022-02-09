@@ -39,6 +39,9 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
       if (message) {
         $.msg(subTitle, message)
+        if (notify.sendNotifybyWxPucher) {
+          await notify.sendNotifybyWxPucher($.name, `【京东账号】${$.nickName || $.UserName}\n${message}`, $.UserName)
+        }
         allMessage += `${subTitle}\n${message}${$.index !== cookiesArr.length ? '\n\n' : ''}`;
       }
     }
