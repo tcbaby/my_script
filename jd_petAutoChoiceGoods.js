@@ -76,6 +76,9 @@ async function jdPet () {
 
         if (message) {
             $.msg(subTitle, message)
+            if (notify.sendNotifybyWxPucher) {
+                await notify.sendNotifybyWxPucher($.name, `【京东账号】${$.nickName || $.UserName}\n${message}`, $.UserName)
+            }
             allMessage += `${subTitle}\n${message}${$.index !== cookiesArr.length ? '\n\n' : ''}`;
         }
     } catch (e) {
