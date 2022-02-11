@@ -1,6 +1,6 @@
 /*
 东东农场选择种子
-cron 55 10,13 * * * jd_fruitAutoChoicePrize.js
+cron 55 9,13 * * * jd_fruitAutoChoicePrize.js
 */
 const $ = new Env('东东农场选择种子');
 let cookiesArr = [], cookie = '', notify, allMessage = '';

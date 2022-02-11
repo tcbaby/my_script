@@ -1,6 +1,6 @@
 /*
 东东萌宠选择商品
-cron 57 10,13 * * * jd_petAutoChoiceGoods.js
+cron 50 9,13 * * * jd_petAutoChoiceGoods.js
 */
 const $ = new Env('东东萌宠选择商品');
 let cookiesArr = [], cookie = '', notify, allMessage = '';
