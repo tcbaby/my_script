@@ -62,11 +62,15 @@ async function start () {
   if (skipPins.indexOf($.UserName) != -1) {
     console.log(`跳过当前账号，不自动选择种子！`)
   } else {
-    await Promise.all([initFarmStatus(), taskInitForFarm(), friendListInitForFarm()])
-    await initHongbao()
-    await choiceGoodsForFarm()
-    await exchangeGood();
-    await gotNewUserTaskForFarm();
+    try {
+      await Promise.all([initFarmStatus(), taskInitForFarm(), friendListInitForFarm()])
+      await initHongbao()
+      await choiceGoodsForFarm()
+      await exchangeGood();
+      await gotNewUserTaskForFarm();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
