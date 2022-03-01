@@ -1,6 +1,6 @@
 /*
 tips
-cron 5 18 * * * jd_tips.js
+cron 0 18 * * * jd_tips.js
 */
 const $ = new Env('tips');
 const notify = require('./sendNotify')
