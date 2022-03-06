@@ -109,14 +109,19 @@ async function initHongbao () {
 
     if ($.farmHongBao.code === '0') {
       choicePrizeFlag = true
-
-      const { name, simpleName, price, prizeLevel } = $.farmHongBao.myfarmWinInnerGoods;
-      console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包`)
-      console.log(`${simpleName} ${name}`)
-
-      const { winTimes, treeEnergy, treeTotalEnergy } = $.farmHongBao.farmUserPro;
-      console.log(`已成功兑换${winTimes}次`)
-      message += `【Lv${prizeLevel}】${name} ￥${price} 领取成功\n`
+      if ($.farmHongBao.hongbaoResult && $.farmHongBao.hongbaoResult.resultCode === 400) {
+        choicePrizeFlag = false
+        console.log(`领取失败：${$.farmHongBao.riskTips}`);
+        message += `领取失败：${$.farmHongBao.riskTips}`
+      } else {
+        const { name, simpleName, price, prizeLevel } = $.farmHongBao.myfarmWinInnerGoods;
+        console.log(`奖品等级: ${prizeLevel}, 奖品：${price}元红包`)
+        console.log(`${simpleName} ${name}`)
+  
+        const { winTimes, treeEnergy, treeTotalEnergy } = $.farmHongBao.farmUserPro;
+        console.log(`已成功兑换${winTimes}次`)
+        message += `【Lv${prizeLevel}】${name} ￥${price} 领取成功\n`
+      }
     } else {
       console.log(`失败：${$.farmHongBao}`)
       message += '水果已经成熟，领取红包失败！'
