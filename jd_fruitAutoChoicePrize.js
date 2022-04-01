@@ -293,7 +293,12 @@ async function getPrize () {
   const levelMap = $.farmInfo.farmLevelWinGoods || {};
   let goodsList;
   for (let i = firstPrizeLevel; i >= 2; --i) {
-    if (!goodsList || goodsList.length === 0) goodsList = levelMap[i];
+    goodsList = levelMap[i];
+    if (!goodsList || goodsList.length === 0) {
+      console.log(`lv[${i}] 种子无货！`);
+    } else {
+      break;
+    } 
   }
   if (!goodsList || goodsList.length === 0) goodsList = $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
   return anyOne(goodsList);
