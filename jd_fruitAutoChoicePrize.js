@@ -291,7 +291,11 @@ async function getPrize () {
     await initForFarm();
   }
   const levelMap = $.farmInfo.farmLevelWinGoods || {};
-  const goodsList = levelMap[firstPrizeLevel] || levelMap[firstPrizeLevel - 1] || $.farmInfo.otherExchangeGoods || $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
+  let goodsList;
+  for (let i = firstPrizeLevel; i >= 2; --i) {
+    if (!goodsList || goodsList.length === 0) goodsList = levelMap[i];
+  }
+  if (!goodsList || goodsList.length === 0) goodsList = $.farmInfo.farmWinGoods || [$.farmInfo.farmUserPro];
   return anyOne(goodsList);
 }
 
