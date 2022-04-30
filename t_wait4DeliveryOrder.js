@@ -59,6 +59,9 @@ async function wait4DeliveryOrder () {
         for (const order of orderList) {
             const { operator, message, messageTime, shopName, dataSubmit } = order;
             const wareList = order.orderMsg.wareInfoList;
+            if (message && message.indexOf('已签收') != -1) {
+              continue
+            }
             msg += `${messageTime} - ${operator}\n- ${message}\n`
             msg += `${dataSubmit} - ${shopName}\n`
             for (const ware of wareList) {
