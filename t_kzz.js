@@ -6,7 +6,7 @@ const request = require('request');
 const notify = require('./sendNotify');
 
 const name = '可转债'
-const url = 'https://data.eastmoney.com/kzz/default.html'
+const url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=PUBLIC_START_DATE&sortTypes=-1&pageSize=50&pageNumber=1&reportName=RPT_BOND_CB_LIST&columns=ALL&quoteColumns=f2~01~CONVERT_STOCK_CODE~CONVERT_STOCK_PRICE,f235~10~SECURITY_CODE~TRANSFER_PRICE,f236~10~SECURITY_CODE~TRANSFER_VALUE,f2~10~SECURITY_CODE~CURRENT_BOND_PRICE,f237~10~SECURITY_CODE~TRANSFER_PREMIUM_RATIO,f239~10~SECURITY_CODE~RESALE_TRIG_PRICE,f240~10~SECURITY_CODE~REDEEM_TRIG_PRICE,f23~01~CONVERT_STOCK_CODE~PBV_RATIO&quoteType=0&source=WEB&client=WEB'
 
 !(async () => {
     if(!process.env.KZZ || !process.env.KZZ){ 
@@ -14,13 +14,11 @@ const url = 'https://data.eastmoney.com/kzz/default.html'
         return;
     }
     request(url, async (err, res) => {
-        if (err) {
+        if (err || !res || !res.body) {
             console.log('请求失败!')
             await notify.sendNotify(`${name}`, '数据抓取失败!')
         } else {
-            res.body.match(/var pagedata= (.*);\n/g)
-            const pageData = JSON.parse(RegExp.$1)
-            const data = pageData.list.result.data
+            const data = JSON.parse(res.body).result.data;
             const latest = [], recentListed = [];
             for (const e of data) {
                 let currDate = new Date().getTime();
