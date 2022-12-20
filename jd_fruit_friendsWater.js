@@ -217,6 +217,7 @@ async function jdFruit() {
       } else {
         console.log(`给${$.farmTask.waterFriendTaskInit.waterFriendMax}个好友浇水任务已完成\n`)
       }
+      await getWaterFriendGotAward();//领取为2好友浇水奖励
       
       /*
       await doDailyTask2();
